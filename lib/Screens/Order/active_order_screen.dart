@@ -358,6 +358,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                             }
                                           ])
                                         });
+
                                         await FirebaseFirestore.instance
                                             .collection('orders')
                                             .doc(querySnapshot.docs[i].id)
