@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:genie_cart_delivery/Screens/Order/previous_order_screen.dart';
 import 'package:genie_cart_delivery/Screens/Order/tab_bar_order.dart';
 
 class ActiveOrderScreen extends StatefulWidget {
@@ -259,9 +260,7 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                                   style: TextStyle(
                                                       fontSize: height / 85)),
                                             ]),
-                                        Flexible(
-                                            child:
-                                                SizedBox(width: width)),
+                                        Flexible(child: SizedBox(width: width)),
                                         Container(
                                             decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
@@ -303,10 +302,118 @@ class _ActiveOrderScreenState extends State<ActiveOrderScreen> {
                                     .collection('deliveryLog')
                                     .doc(activeOrderList[index].orderNumber)
                                     .update({"deliveryStatus": "delivered"});
-                                activeOrderList.removeAt(index);
-                                setState(() {
-                                  _showSpinner = false;
-                                });
+                                QuerySnapshot querySnapshot =
+                                    await FirebaseFirestore.instance
+                                        .collection("orders")
+                                        .get();
+
+                                var queryLen = querySnapshot.docs.length;
+                                for (int i = 0; i < queryLen; i++) {
+                                  var a =
+                                      querySnapshot.docs[i].data()["products"];
+                                  if (a.length > 0) {
+                                    for (int j = 0; j < a.length; j++) {
+                                      if ("${a[j]["orderid"]}" ==
+                                          "${activeOrderList[index].orderNumber}") {
+                                        await FirebaseFirestore.instance
+                                            .collection('orders')
+                                            .doc(querySnapshot.docs[i].id)
+                                            .update({
+                                          "products": FieldValue.arrayUnion([
+                                            {
+                                              "brand": a[j]["brand"],
+                                              "caddress": a[j]["caddress"],
+                                              "category": a[j]["category"],
+                                              "cname": a[j]["cname"],
+                                              "clat": a[j]["clat"],
+                                              "clong": a[j]["clong"],
+                                              "date": a[j]["date"],
+                                              "desc": a[j]["desc"],
+                                              "discount": a[j]["discount"],
+                                              "freq": a[j]["freq"],
+                                              "id": a[j]["id"],
+                                              "img": a[j]["img"],
+                                              "isveg": a[j]["isveg"],
+                                              "life": a[j]["life"],
+                                              "marketedby": a[j]["marketedby"],
+                                              "manufacturer": a[j]
+                                                  ["manufacturer"],
+                                              "mprice": a[j]["mprice"],
+                                              "name": a[j]["name"],
+                                              "olat": a[j]["olat"],
+                                              "olong": a[j]["olong"],
+                                              "oprice": a[j]["oprice"],
+                                              "orderid": a[j]["orderid"],
+                                              "paymode": a[j]["paymode"],
+                                              "reviews": a[j]["reviews"],
+                                              "reviewed": a[j]["reviewed"],
+                                              "rnr": a[j]["rnr"],
+                                              "sellerid": a[j]["sellerid"],
+                                              "seller": a[j]["seller"],
+                                              "selected": a[j]["selected"],
+                                              "status": "Delivered",
+                                              "stars": a[j]["stars"],
+                                              "units": a[j]["units"],
+                                              "values": a[j]["values"],
+                                            }
+                                          ])
+                                        });
+                                        await FirebaseFirestore.instance
+                                            .collection('orders')
+                                            .doc(querySnapshot.docs[i].id)
+                                            .update({
+                                          "products": FieldValue.arrayRemove([
+                                            {
+                                              "brand": a[j]["brand"],
+                                              "caddress": a[j]["caddress"],
+                                              "category": a[j]["category"],
+                                              "cname": a[j]["cname"],
+                                              "clat": a[j]["clat"],
+                                              "clong": a[j]["clong"],
+                                              "date": a[j]["date"],
+                                              "desc": a[j]["desc"],
+                                              "discount": a[j]["discount"],
+                                              "freq": a[j]["freq"],
+                                              "id": a[j]["id"],
+                                              "img": a[j]["img"],
+                                              "isveg": a[j]["isveg"],
+                                              "life": a[j]["life"],
+                                              "marketedby": a[j]["marketedby"],
+                                              "manufacturer": a[j]
+                                              ["manufacturer"],
+                                              "mprice": a[j]["mprice"],
+                                              "name": a[j]["name"],
+                                              "olat": a[j]["olat"],
+                                              "olong": a[j]["olong"],
+                                              "oprice": a[j]["oprice"],
+                                              "orderid": a[j]["orderid"],
+                                              "paymode": a[j]["paymode"],
+                                              "reviews": a[j]["reviews"],
+                                              "reviewed": a[j]["reviewed"],
+                                              "rnr": a[j]["rnr"],
+                                              "sellerid": a[j]["sellerid"],
+                                              "seller": a[j]["seller"],
+                                              "selected": a[j]["selected"],
+                                              "status": a[j]["status"],
+                                              "stars": a[j]["stars"],
+                                              "units": a[j]["units"],
+                                              "values": a[j]["values"],
+                                            }
+                                          ])
+                                        });
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        PreviousOrderScreen()));
+                                      }
+                                    }
+                                  }
+                                  setState(() {
+                                    _showSpinner = false;
+                                  });
+                                }
                               },
                               child: Container(
                                   decoration: BoxDecoration(
